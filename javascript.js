@@ -1,84 +1,79 @@
+// Initialize player and computer scores
+let playerScore = 0;
+let computerScore = 0;
+
 // Function to randomly select the computer's choice
 function getComputerChoice() {
-  // Array of possible choices
   const choices = ["Rock", "Paper", "Scissors"];
-  // Generating a random index to select from the choices array
   const randomIndex = Math.floor(Math.random() * choices.length);
-  // Returning the choice at the randomly selected index
   return choices[randomIndex];
 }
 
 // Function to play a single round of Rock Paper Scissors
 function playRound(playerSelection, computerSelection) {
-  // Converting selections to lowercase for case-insensitive comparison
+  // Standardize the case of player and computer selections
   playerSelection = playerSelection.toLowerCase();
   computerSelection = computerSelection.toLowerCase();
 
-  // Checking if both selections are the same for a tie
+  let result = "";
+
+  // Determine the outcome of the round and update scores
   if (playerSelection === computerSelection) {
-    return "It's a tie!";
-  }
-
-  // Determining the outcome if the player chooses rock
-  if (playerSelection === "rock") {
-    if (computerSelection === "paper") {
-      return "You Lose! Paper beats Rock";
-    } else if (computerSelection === "scissors") {
-      return "You Win! Rock beats Scissors";
-    }
-  }
-
-  // Determining the outcome if the player chooses paper
-  if (playerSelection === "paper") {
-    if (computerSelection === "scissors") {
-      return "You Lose! Scissors beats Paper";
-    } else if (computerSelection === "rock") {
-      return "You Win! Paper beats Rock";
-    }
-  }
-
-  // Determining the outcome if the player chooses scissors
-  if (playerSelection === "scissors") {
-    if (computerSelection === "rock") {
-      return "You Lose! Rock beats Scissors";
-    } else if (computerSelection === "paper") {
-      return "You Win! Scissors beats Paper";
-    }
-  }
-
-  // Returning an error message for invalid player inputs
-  return "Invalid input";
-}
-
-// Function to play a 5-round game of Rock Paper Scissors
-function game() {
-  let playerScore = 0;
-  let computerScore = 0;
-
-  for (let round = 1; round <= 5; round++) {
-    const playerSelection = prompt("Choose Rock, Paper, or Scissors:");
-    const computerSelection = getComputerChoice();
-    const result = playRound(playerSelection, computerSelection);
-
-    console.log(`Round ${round}: ${result}`);
-
-    if (result.includes("Win")) {
-      playerScore++;
-    } else if (result.includes("Lose")) {
-      computerScore++;
-    }
-    // Ties do not change the score
-  }
-
-  console.log(`Final Score: Player ${playerScore}, Computer ${computerScore}`);
-  if (playerScore > computerScore) {
-    console.log("You won the game!");
-  } else if (computerScore > playerScore) {
-    console.log("You lost the game!");
+    result = "It's a tie!";
+  } else if (
+    (playerSelection === "rock" && computerSelection === "scissors") ||
+    (playerSelection === "paper" && computerSelection === "rock") ||
+    (playerSelection === "scissors" && computerSelection === "paper")
+  ) {
+    playerScore++;
+    result = `You Win! ${capitalizeFirstLetter(
+      playerSelection
+    )} beats ${capitalizeFirstLetter(computerSelection)}`;
   } else {
-    console.log("The game is a tie!");
+    computerScore++;
+    result = `You Lose! ${capitalizeFirstLetter(
+      computerSelection
+    )} beats ${capitalizeFirstLetter(playerSelection)}`;
+  }
+
+  // Update the DOM with the round result and current scores
+  updateDOM(result);
+  // Check if there is a winner
+  checkForWinner();
+}
+
+// Helper function to capitalize the first letter of a string
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+// Function to update the result and score display in the DOM
+function updateDOM(result) {
+  const resultsDiv = document.getElementById("results");
+  const scoreDiv = document.getElementById("score");
+
+  resultsDiv.textContent = result;
+  scoreDiv.textContent = `Score - Player: ${playerScore}, Computer: ${computerScore}`;
+}
+
+// Function to check if a player has reached 5 points and won the game
+function checkForWinner() {
+  if (playerScore === 5 || computerScore === 5) {
+    const winner = playerScore === 5 ? "Player" : "Computer";
+    updateDOM(`${winner} wins the game!`);
+    // Reset scores for a new game
+    playerScore = 0;
+    computerScore = 0;
   }
 }
 
-// Call the game function to start the 5-round game
-game();
+// Adding event listeners to buttons to play a round with the selected choice
+document
+  .getElementById("rock")
+  .addEventListener("click", () => playRound("rock", getComputerChoice()));
+document
+  .getElementById("paper")
+  .addEventListener("click", () => playRound("paper", getComputerChoice()));
+document
+  .getElementById("scissors")
+  .addEventListener("click", () => playRound("scissors", getComputerChoice()));
